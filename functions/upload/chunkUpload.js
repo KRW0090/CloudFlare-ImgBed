@@ -1003,12 +1003,12 @@ export async function forceCleanupUpload(context, uploadId, totalChunks) {
 export async function uploadLargeFileToTelegram(context, file, fullId, metadata, fileName, fileType, returnLink, tgBotToken, tgChatId, tgChannel) {
     const { env, waitUntil } = context;
 
-    const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
     const fileSize = file.size;
     const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
     
     // 为了避免CPU超时，限制最大分片数（考虑Cloudflare Worker的CPU时间限制）
-    if (totalChunks > 5) {
+    if (totalChunks > 20) {
         return createResponse('Error: File too large (exceeds 100MB limit)', { status: 413 });
     }
     
