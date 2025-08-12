@@ -254,19 +254,23 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
             waitUntil(retryFailedChunks(context, failedChunks, uploadChannel));
         }
         
-        // 等待重试和上传中的分块完成
+                // 等待重试和上传中的分块完成
         if (uploadingChunks.length > 0 || failedChunks.length > 0) {
             console.log(`Found ${uploadingChunks.length} chunks still uploading, and ${failedChunks.length} chunks retrying, waiting...`);
 
             // 等待并重试，最多等待360秒
             let retryCount = 0;
             const maxRetries = 36; // 360秒，每次等待10秒
+            let lastCompletedCount = completedChunks.length;
 
-            while (uploadingChunks.length > 0 || failedChunks.length > 0 && retryCount < maxRetries) {
+            while ((uploadingChunks.length > 0 || failedChunks.length > 0) && retryCount < maxRetries) {
                 await new Promise(resolve => setTimeout(resolve, 10000)); // 等待10秒
 
                 const updatedStatuses = await checkChunkUploadStatuses(env, uploadId, totalChunks);
-
+                
+                // 更新状态
+                chunkStatuses = updatedStatuses;
+                
                 uploadingChunks = updatedStatuses.filter(chunk => 
                     chunk.status === 'uploading' || 
                     chunk.status === 'retrying'
@@ -277,8 +281,9 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
                 );
                 completedChunks = updatedStatuses.filter(chunk => chunk.status === 'completed');
 
-                if (completedChunks.length > chunkStatuses.filter(chunk => chunk.status === 'completed').length) {
+                if (completedChunks.length > lastCompletedCount) {
                     console.log(`Upload progress: ${completedChunks.length}/${totalChunks} chunks completed`);
+                    lastCompletedCount = completedChunks.length;
 
                     if (statusKey) {
                         await updateMergeStatus(env, statusKey, {
@@ -286,9 +291,7 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
                             message: `Waiting for upload completion: ${completedChunks.length}/${totalChunks} chunks done`
                         });
                     }
-                }
-                
-                retryCount++;
+                }                retryCount++;
             }
 
             // 最终检查分块状态
