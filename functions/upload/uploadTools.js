@@ -37,7 +37,7 @@ export async function getIPAddress(ip) {
         const ipInfo = await fetch(`https://ipapi.co/${ip}/json/`);
         const ipData = await ipInfo.json();
         
-        if (!ipInfo.error) {
+        if (!ipInfo.error == true) {
             // const lng = ipData.data?.lng || 0;
             // const lat = ipData.data?.lat || 0;
             
