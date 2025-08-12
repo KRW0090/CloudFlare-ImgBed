@@ -224,7 +224,7 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
         }
 
         // 收集所有已上传的分块信息
-        const chunkStatuses = await checkChunkUploadStatuses(env, uploadId, totalChunks);
+        let chunkStatuses = await checkChunkUploadStatuses(env, uploadId, totalChunks);
         let completedChunks = chunkStatuses.filter(chunk => chunk.status === 'completed');
         let uploadingChunks = chunkStatuses.filter(chunk => 
             chunk.status === 'uploading' || 
