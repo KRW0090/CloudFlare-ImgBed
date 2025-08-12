@@ -420,8 +420,15 @@ async function mergeR2ChunksInfo(context, uploadId, completedChunks, metadata) {
         // 写入KV数据库
         await env.img_url.put(finalFileId, "", { metadata });
 
-        // 结束上传
-        waitUntil(endUpload(context, finalFileId, metadata));
+        // 立即结束上传而不是等待
+        try {
+            // 不使用waitUntil，直接等待结果
+            await endUpload(context, finalFileId, metadata);
+            console.log(`R2 merge completed for ${finalFileId}`);
+        } catch (error) {
+            // 即使清理失败也继续返回结果
+            console.error(`Error during endUpload: ${error.message}`);
+        }
 
         // 更新返回链接
         const returnFormat = url.searchParams.get('returnFormat') || 'default';
@@ -521,8 +528,15 @@ async function mergeS3ChunksInfo(context, uploadId, completedChunks, metadata) {
         // 写入KV数据库
         await env.img_url.put(finalFileId, "", { metadata });
 
-        // 异步结束上传
-        waitUntil(endUpload(context, finalFileId, metadata));
+        // 立即结束上传而不是等待
+        try {
+            // 不使用waitUntil，直接等待结果
+            await endUpload(context, finalFileId, metadata);
+            console.log(`S3 merge completed for ${finalFileId}`);
+        } catch (error) {
+            // 即使清理失败也继续返回结果
+            console.error(`Error during endUpload: ${error.message}`);
+        }
 
         // 更新返回链接
         const returnFormat = url.searchParams.get('returnFormat') || 'default';
@@ -589,8 +603,15 @@ async function mergeTelegramChunksInfo(context, uploadId, completedChunks, metad
         // 写入KV数据库
         await env.img_url.put(finalFileId, chunksData, { metadata });
 
-        // 异步结束上传
-        waitUntil(endUpload(context, finalFileId, metadata));
+        // 立即结束上传而不是等待
+        try {
+            // 不使用waitUntil，直接等待结果
+            await endUpload(context, finalFileId, metadata);
+            console.log(`Telegram merge completed for ${finalFileId}`);
+        } catch (error) {
+            // 即使清理失败也继续返回结果
+            console.error(`Error during endUpload: ${error.message}`);
+        }
 
         // 生成返回链接
         const returnFormat = url.searchParams.get('returnFormat') || 'default';
