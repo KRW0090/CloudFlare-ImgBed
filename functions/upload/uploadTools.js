@@ -33,26 +33,32 @@ export function generateShortId(length = 8) {
 export async function getIPAddress(ip) {
     let address = '未知';
     try {
-        const ipInfo = await fetch(`https://apimobile.meituan.com/locate/v2/ip/loc?rgeo=true&ip=${ip}`);
+        // const ipInfo = await fetch(`https://apimobile.meituan.com/locate/v2/ip/loc?rgeo=true&ip=${ip}`);
+        const ipInfo = await fetch(`https://ipapi.co/${ip}/json/`);
         const ipData = await ipInfo.json();
         
-        if (ipInfo.ok && ipData.data) {
-            const lng = ipData.data?.lng || 0;
-            const lat = ipData.data?.lat || 0;
+        if (!ipInfo.error) {
+            // const lng = ipData.data?.lng || 0;
+            // const lat = ipData.data?.lat || 0;
             
             // 读取具体地址
-            const addressInfo = await fetch(`https://apimobile.meituan.com/group/v1/city/latlng/${lat},${lng}?tag=0`);
-            const addressData = await addressInfo.json();
+            // const addressInfo = await fetch(`https://apimobile.meituan.com/group/v1/city/latlng/${lat},${lng}?tag=0`);
+            // const addressData = await addressInfo.json();
 
-            if (addressInfo.ok && addressData.data) {
-                // 根据各字段是否存在，拼接地址
-                address = [
-                    addressData.data.detail,
-                    addressData.data.city,
-                    addressData.data.province,
-                    addressData.data.country
-                ].filter(Boolean).join(', ');
-            }
+            // if (addressInfo.ok && addressData.data) {
+            //     // 根据各字段是否存在，拼接地址
+                // address = [
+                //     addressData.data.detail,
+                //     addressData.data.city,
+                //     addressData.data.province,
+                //     addressData.data.country
+                // ].filter(Boolean).join(', ');
+            // }
+            address = [
+                ipData.country_name,
+                ipData.region,
+                ipData.city
+            ].filter(Boolean).join(', ');
         }
     } catch (error) {
         console.error('Error fetching IP address:', error);
