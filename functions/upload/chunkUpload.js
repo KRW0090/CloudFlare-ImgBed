@@ -1008,8 +1008,8 @@ export async function uploadLargeFileToTelegram(context, file, fullId, metadata,
     const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
     
     // 为了避免CPU超时，限制最大分片数（考虑Cloudflare Worker的CPU时间限制）
-    if (totalChunks > 4) {
-        return createResponse('Error: File too large (exceeds 20MB limit)', { status: 413 });
+    if (totalChunks > 20) {
+        return createResponse('Error: File too large (exceeds 100MB limit)', { status: 413 });
     }
     
     const chunks = [];
